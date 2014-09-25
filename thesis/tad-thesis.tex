@@ -1,0 +1,124 @@
+﻿% !Mode:: "TeX:UTF-8"
+\documentclass[master,openright,oneside]{buaathesis}
+\usepackage{amssymb}
+
+%\usepackage{enumerate}
+\usepackage{fancyvrb}
+\usepackage[linesnumbered,boxruled,noline]{algorithm2e}
+\renewcommand{\algorithmcfname}{算法}
+\IncMargin{1em}
+%\SetAlCapSkip{10ex}
+
+\RequirePackage{fancyhdr}
+
+
+\begin{document}
+
+% 个人信息
+\include{subfiles/info}
+% 中英封面、提名页、授权书
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 摘要、目录页眉页脚
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyfoot[C]{\zihao{5}\thepage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%前文区
+\frontmatter
+
+\pagestyle{plain}
+% 摘要
+\include{subfiles/abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 目录、插图目录、表格目录
+\tableofcontents
+\listoffigures
+\listoftables
+
+% 符号表
+\include{subfiles/denotation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 正文页眉页脚
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[C]{\zihao{-5}\songti
+    \ifodd\value{page}
+        北京航空航天大学硕士学位论文\vspace{1.5mm}
+    \else\leftmark
+    \fi
+}
+\fancyfoot[C]{\zihao{5}\thepage}
+
+\renewcommand{\headrulewidth}{0.5bp} % 页眉线宽度
+
+\fancypagestyle{plain}{
+    \pagestyle{fancy}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 正文页码样式
+\mainmatter
+
+\normalem %去除 ulem 包的下划线
+
+% 正文
+% Introduction 国内外现状
+\include{subfiles/chapter-intro}
+
+% 背景知识
+% 介绍基于的算法
+\include{subfiles/chapter-basic}
+
+% 改进的 SDF 算法
+\include{subfiles/chapter-SDF}
+
+% ICS 算法，构建 DAG
+\include{subfiles/chapter-DAG}
+
+% 改进的 DAG 及 DLS 算法
+\include{subfiles/chapter-DLS}
+
+% 算法实现 及 程序说明
+\include{subfiles/chapter-program}
+
+% 例子分析
+\include{subfiles/chapter-example}
+
+% 结论与展望
+\include{subfiles/conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Reference
+\nocite{*}
+\bibliography{subfiles/bibs}
+\addcontentsline{toc}{chapter}{参考文献}
+\cleardoublepage
+
+
+% 附录
+\appendix
+\include{subfiles/appendix-format}
+%\include{data/appendix1-faq}
+%\include{data/appendix2-contactus}
+
+% 附页标题样式
+\backmatter
+
+% 附页
+\include{subfiles/back}
+
+\end{document}

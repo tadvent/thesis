@@ -1,0 +1,65 @@
+﻿% !Mode:: "TeX:UTF-8"
+
+% 学院中英文名，中文不需要“学院”二字
+% 院系英文名可参见
+% http://ev.buaa.edu.cn/education/index.php?page=department
+\school
+{计算机}{School of Computer Science and Engineering}
+
+% 专业中英文名，中文不需要“专业”二字
+\major
+{计算机系统结构}{Computer architecture}
+
+% 论文中英文标题
+\thesistitle
+{一种面向通信的\\
+多核分区实时调度算法研究}
+{%这里是长长的长长的长长的长长的长长的长长的长长的长长的长长的副标题
+}
+{A Communication-Oriented Real-Time Tasks Scheduling Algorithm for Partition System on Multiprocessors}
+{%English sub title, It is very very very very very very very very very very long
+}
+
+% 作者中英文名
+\thesisauthor
+{王锦麟}{Wang Jinlin}
+
+% 导师中英文名
+\teacher
+{龙翔}{Long Xiang}
+
+% 中图分类号，可在 http://www.ztflh.com/ 查询
+\category{TP316.2}
+
+% 学习开始时间
+\thesisbegin{2010}{09}{13}
+
+% 学习结束时间
+\thesisend{2013}{}{}
+
+% 毕设答辩时间
+\defense{2012}{12}{}
+
+% 中文摘要关键字
+\ckeyword{多核，实时系统，调度算法，面向通信，同步数据流} %======================
+
+% 英文摘要关键字
+\ekeyword{multiprocessor, real-time OS, scheduling algorithm, Communication-Oriented, SDF} %=============================
+
+% 研究方向
+\direction{实时系统调度算法}
+
+% 教师职称中英文
+\teacherdegree{教授}{Prof.}
+
+% 保密等级
+\mibao{}
+
+% 论文编号，由10006+学号组成
+\thesisID{10006SY1006515}
+
+% 论文提交时间
+\commit{2012}{11}{30}
+
+% 学位授予日期
+\award{}{}{}

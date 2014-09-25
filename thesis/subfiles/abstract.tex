@@ -1,0 +1,81 @@
+﻿% !Mode:: "TeX:UTF-8"
+\begin{cabstract}
+
+% 问题的提出 ---- 通信是落脚点，紧扣标题
+% 提一下分区系统的问题 %=========================================
+任务调度一向是操作系统需要关心的重要问题之一。在实时系统中，随着多核处理器结构的广泛使用，人们对实时任务在多核分区系统上的调度也提出了新的要求，这不仅体现在对周期性任务执行时间限的保证，还体现在需要处理任务与任务之间由于数据通信而产生的优先依赖关系、核间消息调度等方面，进一步提高了调度问题的复杂性。
+
+% 相关技术简述
+同步数据流 (Synchronous Dataflow, SDF) 模型常用于数字信号处理 (Digital Signal Processing, DSP) 系统，是一种用于表示程序模块间或多个任务之间数据传输关系的表示图。它能够自然的表示任务之间的并行与依赖关系，使任务能够被方便的进行串行或并行调度。
+
+% 算法的步骤流程
+针对多核分区实时系统上的任务调度问题，本文提出一种面向通信的静态调度 (Communication-Oriented Static Scheduling, COSS) 算法。该算法主要由三步构成：
+\begin{enumerate}
+   \item 从表示任务间数据流的 SDF 图构建含有虚拟数据和虚拟结点的广义同步数据流 (General Synchronous Dataflow, GSDF) 图，其同时反映了任务间的数据通信关系和时间约束。
+   \item 提出 Improved Class S (ICS) 算法，将上一步中得到的 GSDF 转化为一个调度周期的有向无环图 (Directed Acyclic Graph, DAG)，将每个任务的多次执行用不同结点表示，并去除任务间的循环依赖关系。
+   \item 提出修改的动态层级调度 (Modified Dynamic Level Scheduling, MDLS) 算法将 DAG 中的任务结点分配至目标多核/处理器平台，得到每个核/处理器的任务调度表，并给出核/处理器之间链路上的通信调度。
+ \end{enumerate}
+
+% 遇到并解决的问题
+在设计该 COSS 算法的过程中，主要考虑并解决了以下问题：
+\begin{enumerate}
+  \item 从 SDF 到 GSDF 的转化过程中如何加入周期性任务的时间限约束条件。本文在研究了 SDF 图性质的基础上，提出了可以添加灵活约束关系的 GSDF 图，可通过添加虚拟结点和结点间的虚拟数据流来增加新的约束条件。论文提出了增加以上约束条件的方法，并对其正确性给出了证明。
+  \item 在考虑结点间数据通信的前提下，将 GSDF 转化为 DAG 时，除了考虑某个结点的运行需要依赖其它哪些结点外，还需计算分别从这些结点得到的数据量，为下一步消息调度时提供信息。文中提出了以上结点间具体数据传输量的计算方法。
+  \item 从 DAG 到静态调度表的过程由于存在虚拟结点的问题，也需要对 DLS 算法进行修改以适应这里的需求。
+\end{enumerate}
+
+
+% 得到的结果
+COSS 算法能够在考虑任务间数据通信和周期任务时间限的情况下，在运行前将任务静态调度到多核处理器平台上，同时保持任务之间的通信关系和时间限制得到满足。在有效调度能够被找到的情况下，算法将会给出各个核上的调度序列，以及核之间链路上的消息调度序列。
+
+\end{cabstract}
+\begin{eabstract}
+
+% TODO: 换成与中文对应的英文 ==========================================
+% 英文先随便写一下，等最后提交前再改的好一些
+
+%This article studies the scheduling problem of a set of tasks with time or data constraints on a number of identical processors with full connections. We present an algorithm, in which a set of static schedule lists can be obtained, each for a processor, such that each task starts executing after its release time and completes its computation before its deadline, and all the precedence relations between tasks resulting from data dependency are satisfied. The data dependency relations between tasks are represented by Synchronous Dataflow Graphs (SDF) as they can indicate tasks’ concurrency and enable effective scheduling on multiprocessor platforms. The SDF, however, does not support the time constraints of tasks directly, thus an adaption is applied to conform to the time limits. With this adaption, the periodic tasks of implicit-deadline or constrained-deadline can be scheduled on multiprocessor platform effectively.
+
+
+%任务调度一向是操作系统需要关心的重要问题之一。在实时系统中，随着多核处理器结构的广泛使用，人们对实时任务在多核分区系统上的调度也提出了新的要求，这不仅体现在对周期性任务执行时间限的保证，还体现在需要处理任务与任务之间由于数据通信而产生的优先依赖关系、核间消息调度等方面，进一步提高了调度问题的复杂性。
+Scheduling is one of the important issues  in an operation system. In a real-time operation system, with the widespread use of the multi-core processor architecture, new scheduling requirements has been put forward on multi-core partition platform.
+Not only the deadlines of the periodic tasks should be graranteed, the precedence relations between tasks resulting from communication should also be ensured. These requirements further increased the complexity of the scheduling problem.
+
+%% 相关技术简述
+%同步数据流 (Synchronous Dataflow, SDF) 模型常用于数字信号处理 (Digital Signal Processing, DSP) 系统，是一种用于表示程序模块间或多个任务之间数据传输关系的表示图。它能够自然的表示任务之间的并行与依赖关系，使任务能够被方便的进行串行或并行调度。
+
+Synchronous Data Flow (SDF) Model, commonly used in Digital Signal Processing (DSP) system, is a kind of graph, which represent data dependency relationship between program modules or tasks. The parallelism and data dependencies between tasks can be expressed by SDF naturally, thus the tasks can be scheduled conveniently.
+
+%% 算法的步骤流程
+%针对多核分区实时系统上的任务调度问题，本文提出一种面向通信的静态调度 (Communication-Oriented Static Scheduling, COSS) 算法。该算法主要由三步构成：
+%%We present an algorithm, in which a set of static schedule lists can be obtained, each for a processor, such that each task starts executing after its release time and completes its computation before its deadline, and all the precedence relations between tasks resulting from data dependency are satisfied.
+To solve the scheduling problems in a real-time partition system on multi-core platform, this article presents an communication-oriented static scheduling (COSS) algorithm, which consists of three steps:
+\begin{enumerate}
+%   \item 从表示任务间数据流的 SDF 图构建含有虚拟数据和虚拟结点的广义同步数据流 (General Synchronous Dataflow, GSDF) 图，其同时反映了任务间的数据通信关系和时间约束。
+    \item From the SDF which represents the data dependencies between tasks, a General Synchronous Data Flow (GSDF) can be obtained, which includes a virtual node and the corresponding virtual data stream, and reflects the communication relations between tasks and the time constraints.
+%   \item 提出 Improved Class S (ICS) 算法，将上一步中得到的 GSDF 转化为一个调度周期的有向无环图 (Directed Acyclic Graph, DAG)，将每个任务的多次执行用不同结点表示，并去除任务间的循环依赖关系。
+    \item With the Improved Class S (ICS) algorithm presented in this article, the GSDF in the previous step can be converted to a Directed Acyclic Graph (DAG) of one scheduling period. In DAG, every execution of a task is represented by a node, and the cyclic dependency relations between tasks are removed.
+%   \item 提出修改的动态层级调度 (Modified Dynamic Level Scheduling, MDLS) 算法将 DAG 中的任务结点分配至目标多核/处理器平台，得到每个核/处理器的任务调度表，并给出核/处理器之间链路上的通信调度。
+    \item With the Modified Dynamic Level Scheduling (MDLS) algorithm presented in this article and the route table of the target platform, the execution nodes of the DAG in the previous step will be assigned to the cores or processors of the target platform, such that each execution of the tasks starts executing after its release time and completes its computation before its deadline, and all the precedence relations between tasks resulting from data dependency are satisfied. If the scheduling is successful, the static scheduling list of tasks on each core or processor will be obtained, and the static scheduling list of messages on each link between linked cores or processors as well.
+\end{enumerate}
+
+
+%% 遇到并解决的问题
+%在设计该 COSS 算法的过程中，主要考虑并解决了以下问题：
+In the design of the COSS algorithm, the following issues are considered and solved:
+\begin{enumerate}
+%  \item 从 SDF 到 GSDF 的转化过程中如何加入周期性任务的时间限约束条件。本文在研究了 SDF 图性质的基础上，提出了可以添加灵活性约束关系的 GSDF 图，可通过添加虚拟结点和结点间的虚拟数据流来增加新的约束条件。论文提出了增加以上约束条件的方法，并对其正确性给出了证明。
+    \item How to combine the data dependencies and time constraints in a single GSDF. Because GSDF is a generalized SDF, the data dependencies can be expressed easily, just as that in an SDF. After analyzing the properties of an SDF, this article presents a method that a virtual node and the corresponding virtual data streams are added to the GSDF. By this method, the data and time constraints can be expressed in a GSDF. Then the correctness of this method is also discussed.
+%  \item 在考虑结点间数据通信的前提下，将 GSDF 转化为 DAG 时，除了考虑某个结点的运行需要依赖其它哪些结点外，还需计算分别从这些结点得到的数据量，为下一步消息调度时提供信息。文中提出了以上结点间具体数据传输量的计算方法。
+    \item When converting the GSDF to a DAG, not only should the dependent task execution nodes of a node be considered, but the amount of data transmitted between them should be calculated as well. This information is used to get the latencies of messages passing. This article presents the calculation method of the amount of data transmitted between execution nodes.
+%  \item 从 DAG 到静态调度表的过程由于存在虚拟结点的问题，也需要对 DLS 算法进行修改以适应这里的需求。
+    \item In the third step of the COSS algorithm, when assigning the nodes in DAG to cores or processors, the virtual nodes should be treated specifically. The MDLS algorithm is presented to solve this problem.
+\end{enumerate}
+
+
+%% 得到的结果
+%COSS 算法能够在考虑任务间数据通信和周期任务时间限的情况下，在运行前将任务静态调度到多核处理器平台上，同时保持任务之间的通信关系和时间限制得到满足。在有效调度能够被找到的情况下，算法将会给出各个核上的调度序列，以及核之间链路上的消息调度序列。
+ %This article presents the COSS algorithm, in which a set of static schedule lists can be obtained, each for a processor, such that each task starts executing after its release time and completes its computation before its deadline, and all the precedence relations between tasks resulting from data dependency are satisfied.
+ The COSS algorithm, which take consideration of the data communication and periodic tasks' time constraints, can schedule the tasks to multi-core or multiprocessor platform, such that the communication relations between tasks and time constraints are satisfied. If such a schedule is found, the static scheduling list of tasks on each core or processor and the static scheduling list of messages on each link between linked cores or processors will be obtained.
+
+\end{eabstract}

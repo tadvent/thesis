@@ -1,0 +1,148 @@
+% !Mode:: "TeX:UTF-8"
+
+\chapter{程序结果分析}
+
+%\emph{TODO}: 按通信量与计算时间的比例大小分类、按拓扑结构分类（消息拥塞）、按时间与数据依赖的相对多少分类
+
+%本节通过几个例子分别验证 COSS 算法的流程、处理器排序优化、目标平台的连接对调度结果的影响等，分析几种不同类型任务集的调度结果。
+本节通过例子来具体演示 COSS 算法的流程，并分析调度结果的正确性。
+\section{算法流程示例}
+
+%\emph{TODO: 给出一个具体例子的输入输出，并结合例子分析说明}
+
+例如有周期任务 A 和 B，运行时间分别为 $C_1=1$ 和 $C_2=2$，周期性时间属性分别为：
+\begin{gather*}
+  T_A=2, O_A=0, D_A=2 \\
+  T_B=3, O_B=0, D_B=3
+\end{gather*}
+且 A、B 任务之间具有如图 \ref{program-fig-sample-SDF} 所示的通信关系。
+
+\begin{figure}
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=18ex]{figure/program-sample-SDF.pdf}\\
+  \caption{A、B 任务之间的通信关系}\label{program-fig-sample-SDF}
+\end{figure}
+
+假设将 A、B 调度到由两个核组成的目标平台，其连接矩阵为
+$$C=\begin{bmatrix}-1 & 1 \\ 1 & -1\end{bmatrix}$$
+核间通信速率 $s=10$，根据附录所述输入格式，将其整理为如下输入文件：
+\begin{Verbatim}[numbers=left,frame=lines,xleftmargin=50pt]
+2
+1 2 0 2 -1
+2 3 0 3 -1
+1
+1 2 2 3 2
+1
+2
+10
+1
+1 2
+\end{Verbatim}
+
+模拟程序按以上信息调度，输出内容分为求解拓扑矩阵、DAG、生成的静态路由表、调度表等几部分。
+
+程序输出拓扑矩阵为：
+\begin{equation*}
+  \Gamma=\begin{bmatrix}
+    1 & -2 & 0 \\
+    1 & 0 & -3 \\
+    -1 & 2 & 0 \\
+    0 & 2 & -3 \\
+    -1 & 0 & 3
+  \end{bmatrix}
+\end{equation*}
+
+由输入任务的时间属性以及任务间的通信关系，用第\ref{chapter-SDF}章介绍的方法，可以构建 GSDF 如图\ref{EXP-fig-GSDF} 所示。考虑到矩阵第1列对应虚拟结点V，第2 列对应任务结点A，第3列对应任务结点B，矩阵的每一行分别对应从 V 到 A 的弧、从 V 到 B 的弧、从 A 到 B 的弧、从 A 到 V 的弧以及从 B 到 V 的弧。可以看到，以上拓扑矩阵与任务 A、B 构建的 GSDF 相符。
+
+\begin{figure}
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=30ex]{figure/EXP-GSDF.pdf}\\
+  \caption{A、B 任务构建的 GSDF}\label{EXP-fig-GSDF}
+\end{figure}
+
+程序输出以上拓扑矩阵零空间向量的最小整数解为
+
+\begin{equation*}
+  q=\begin{bmatrix}
+    6 \\
+    3 \\
+    2
+  \end{bmatrix}
+\end{equation*}
+
+由以上 GSDF 和 q 构建 DAG，程序输出如下：
+\begin{Verbatim}[numbers=left,frame=single,xleftmargin=50pt]
+======== DAG ========
+Task 1:
+  (1, 0): (0 2) 0; (2 0) 1; (2 1) 1;
+  (1, 1): (0 4) 0; (2 1) 2;
+  (1, 2): NP (0 0) 0; NP (0 1) 0; NP (2 0) 2;
+
+Task 2:
+  (2, 0): (0 3) 0;
+  (2, 1): NP (0 0) 0; NP (0 1) 0; NP (0 2) 0;
+\end{Verbatim}
+
+其中 Task 0 表示虚拟任务 V，Task 1 表示任务 A，Task 2 表示任务 B。 任务 i 的第 j 次运行以一对整数 (i, j) 表示，每一行对应从 (i, j) 发出的，向其他任务结点发送的通信信息以及传输数据量。如 (1, 0): (2 0) 1 表示任务 1 的首次运行会向任务 2 的首次运行发送 1 的数据量。如果数据量为 0，表明任务间仅有时间上的制约关系，没有实际的数据通信，这种情况多发生于周期性任务与虚拟任务结点之间。
+输出信息中的 NP 表示跨周期结点间的消息传输目标与数据传输量。以上一个调度周期的 DAG 可以表示为图 \ref{EXP-fig-DAG} 所示（未显示跨周期结点间的消息）。图中弧上的数字表示结点间的通信数据量，结点旁的数字为该结点的 SBL 值。从图中可以看出，任务间的通信消息（包括调度周期内和周期间）一共有4 条。
+
+\begin{figure}
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=33ex]{figure/EXP-DAG.pdf}\\
+  \caption{A、B 任务构建的 DAG}\label{EXP-fig-DAG}
+\end{figure}
+
+
+目标平台是仅有两个核心的处理器，因此路由表非常简单，链路也只有一条，程序输出的下一跳矩阵为
+$$H=\begin{bmatrix}-1 & 2\\ 1 & -1\end{bmatrix}$$
+最终根据以上 DAG
+得到的调度结果为：
+\begin{Verbatim}[numbers=left,frame=single,xleftmargin=50pt]
+===== Schedules =====
+Processor 1:
+     0.00 -->  1.00: Task (1 0), time 1
+     1.00 -->  3.00: Task (2 0), time 2
+     4.00 -->  5.00: Task (1 2), time 1
+
+Processor 2:
+     2.00 -->  3.00: Task (1 1), time 1
+     3.00 -->  5.00: Task (2 1), time 2
+
+Link 1 --- 2:
+     1.00 -->  1.10: Task (1 0) --> (2 1), Processor 1 --> 2, data 1
+
+  ---- Task ----
+Task 1:
+    (1 0): [Processor   1] time  0.00 -->  1.00
+    (1 1): [Processor   2] time  2.00 -->  3.00
+    (1 2): [Processor   1] time  4.00 -->  5.00
+
+Task 2:
+    (2 0): [Processor   1] time  1.00 -->  3.00
+    (2 1): [Processor   2] time  3.00 -->  5.00
+\end{Verbatim}
+由调度结果可以看出，Task 1 的 3 次运行分别在 [0.0, 2.0)、[2.0, 4.0)、[4.0, 6.0) 的时间范围内，Task 2 的 2 次运行分别在 [0.0, 3.0)、[3.0, 6.0)] 的时间范围内，他们的周期性时间约束得到了保证。通信约束方面，Task 2 的第一次执行 (2 0) 是在 [1.0, 3.0) 时段，在 Task 1 的第一次运行 (1 0) 结束后，两者位于同一处理器核心，因此链路上没有这条消息调度。Task 2 的第 2 次执行 (2 1) 是 [3.0, 5.0) 时段，也在 Task 1 的第 2 次执行 ([2, 3] 时段) 结束后，因此周期内的优先关系制约得到了满足，且这两次执行均处于同一处理器，因此也不需在链路上进行消息调度。而 Task 2 的第 2 次执行 (2 1) 需要从 Task 1 第 1 次执行 (1 0) 得到数据，因此在链路上有这条消息的调度。最后，任务 1 的第三次执行 (1 2) 需要向下一周期任务 2 的第一次执行 (2 0) 发送 2 数据的消息，而从调度表可以看出这两者都位于处理器1，因此链路上也无需对这条消息调度。以上调度如图 \ref{EXP-fig-sch1} 所示。
+
+\begin{figure}
+  \centering
+  % Requires \usepackage{graphicx}
+  \includegraphics[height=25ex]{figure/EXAMP-sch1.pdf}\\
+  \caption{简单例子的调度图}\label{EXP-fig-sch1}
+\end{figure}
+
+经过以上分析可以看到，两个任务均在时间限制约束的范围内，且满足了 A、B 之间数据通信的关系。其跨核的消息调度也得以体现。
+
+%\section{处理器排序对调度结果的影响}
+%在第 \refl{DLS-processor-sort} 节我们讨论了通过对处理器排序来优化调度结果，使任务更倾向于分配在连接数较多的处理器上，
+
+\section{任务自依赖约束的验证}
+
+由六个任务组成的任务集，其任务的时间约束如表\ref{EXP-table-6tasks-time}所示。
+
+
+\section{本章小结}
+
+本章用一个例子演示了模拟程序的计算流程，各步的具体结果，并结合最终产生的调度表分析验证了调度结果满足任务的时间及通信约束。
