@@ -1,0 +1,29 @@
+Line 1: one integer nTask, the number of tasks.
+Line 2 ~ nTask + 1 (the following nTask lines): 5 integers on each line:
+    Number 1:   wcet of task i                          [1, oo)
+    Number 2:   T of task i (periodic time of the task) [0, oo)
+        if T == 0:  this task is not periodic
+    Number 3:   offset of task i                        [0, T)
+    Number 4:   deadline of task i                      [0, oo)
+        if deadline == 0:   this task is not periodic
+    Number 5:   self delay of task i.                   [-1, oo)
+        if selfdelay > 0:   this task is self dependent, and there will be data transmited between two sequential tasks.
+        if selfdelay = 0:   this task is self dependent, but there is no data transmited
+        if selfdelay < 0:   this task is not self dependent.
+Line nTask + 2: one integer nArc, the number of precedence relationship
+Line nTask + 3 ~ nTask + nArc + 2 (the following nArc lines): 5 integers on each line:
+    Number 1:   the producer index of a relationship    [1, nTask]
+    Number 2:   the amount of data that the producer will produce in each run in this relationship
+                                                        [1, oo)
+    Number 3:   the receiver index of the relationship  [1, nTask] receiver != producer
+    Number 4:   the amount of data that the receiver will consume in each run in this relationship
+                                                        [1, oo)
+    Number 5:   the delay in the relationship           [0, oo)
+        if delay = 0:   there is no init data in this buffer
+Line nTask + nArc + 3: one integer J, the number of minimal period that a large period contains [1, oo)
+Line nTask + nArc + 4: one integer nProcessor, the number of processors	[1, oo)
+Line nTask + nArc + 5: one integer speed, the data transmited between processors per unit time  [1, oo)
+Line nTask + nArc + 6: one integer nConnection, the number of connections between processors    [0, oo)
+Line nTask + nArc + 7 ~ nTask + nArc + nConnection + 6 (the following nConnection lines): 2 integers on each line:
+    the index of the two connected processors    [1, nProcessor] [1, nProcessor]
+
